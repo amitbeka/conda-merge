@@ -26,16 +26,29 @@ import yaml
 
 
 class MergeError(Exception):
+    """Errors during conda-merge run, mainly failing to merge channels/dependencies"""
     pass
 
 
 def main(args):
+    """Main script entry point.
+
+    `args` is a Namescpace object, `args.files` should be a list of file paths
+    to merge.
+    No return value, the unified yaml file is printed to stdout.
+    If an error occurs, a message is printed to stderr and exception is raised.
+
+    """
     env_definitions = [read_file(f) for f in args.files]
     unified_definition = {}
     name = merge_names(env.get('name') for env in env_definitions)
     if name:
         unified_definition['name'] = name
-    channels = merge_channels(env.get('channels') for env in env_definitions)
+    try:
+        channels = merge_channels(env.get('channels') for env in env_definitions)
+    except MergeError as exc:
+        sys.stderr("Falied to merge channel priorities.\n{}\n".format(exc.msg))
+        raise
     if channels:
         unified_definition['channels'] = channels
     deps = merge_dependencies(env.get('dependencies') for env in env_definitions)
@@ -47,6 +60,7 @@ def main(args):
 
 
 def parse_args(argv=None):
+    """Parse command line arguments (or user provided ones as list)"""
     description = sys.modules[__name__].__doc__
     parser = argparse.ArgumentParser(
         description=description,
@@ -68,10 +82,18 @@ def merge_names(names):
 
 
 def merge_channels(channels_list):
+    """Merge multiple channel priorities list and output a unified one.
+
+    Use a directed-acyclic graph to create a topological sort of the priorities,
+    so that the order from each environment file will be preserved in the output.
+    If this cannot be satisfied, a MergeError is raised.
+    If no channel priories are found (all are None), return an emply list.
+
+    """
     dag = DAG()
     try:
         for channels in channels_list:
-            if channels is None: # not found in this environment definition
+            if channels is None:  # not found in this environment definition
                 continue
             for i, channel in enumerate(channels):
                 dag.add_node(channel)
@@ -83,10 +105,18 @@ def merge_channels(channels_list):
 
 
 def merge_dependencies(deps_list):
+    """Merge all dependencies to one list and return it.
+
+    Two overlapping dependencies (e.g. package-a and package-a=1.0.0) are not
+    unified, and both are left in the list (except cases of exactly the same
+    dependency). Conda itself handles that very well so no need to this ourselves,
+    unless you want to prettify the output by hand.
+
+    """
     only_pips = []
     unified_deps = []
     for deps in deps_list:
-        if deps is None: # not found in this environment definition
+        if deps is None:  # not found in this environment definition
             continue
         for dep in deps:
             if isinstance(dep, dict) and dep['pip']:
@@ -100,7 +130,8 @@ def merge_dependencies(deps_list):
 
 
 def merge_pips(pip_list):
-    return {'pip': sorted(req for reqs in pip_list for req in reqs)}
+    """Merge pip requirements lists the same way as `merge_dependencies` work"""
+    return {'pip': sorted({req for reqs in pip_list for req in reqs})}
 
 
 class DAG(object):
@@ -184,4 +215,7 @@ class DAG(object):
 
 
 if __name__ == '__main__':
-    main(parse_args())
+    try:
+        main(parse_args())
+    except MergeError:
+        sys.exit(1)

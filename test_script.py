@@ -18,6 +18,7 @@ def test_merge_names():
 
 
 def test_channels():
+    """Test merge_channels and see that the priorities are merged correctly"""
     # simple
     assert cm.merge_channels([['a', 'b'], ['b', 'c']]) == ['a', 'b', 'c']
     # contained
@@ -32,6 +33,7 @@ def test_channels():
 
 
 def test_dependencies():
+    """Test merge_dependencies with complex overlapping cases"""
     deps1 = ['a', 'b', 'c', 'd', {'pip': ['x', 'y', 'z']}]
     deps2 = ['b=2.0.*', 'e', {'pip': ['x==1.0.0', 'w']}]
     deps3 = ['f<3', 'a>=4']
@@ -43,7 +45,7 @@ def test_dependencies():
 
 
 def test_main():
-    """Test the main entry point for the script with real examples"""
+    """Test the main entry point for the script with a real example"""
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
         argv = list(glob.glob('example/*environment.yml'))
