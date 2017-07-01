@@ -25,6 +25,9 @@ import sys
 import yaml
 
 
+__version__ = '0.1.0'
+
+
 class MergeError(Exception):
     """Errors during conda-merge run, mainly failing to merge channels/dependencies"""
     pass
