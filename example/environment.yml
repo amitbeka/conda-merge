@@ -1,0 +1,13 @@
+name: example
+channels:
+  - defaults
+  - conda
+  - conda-forge
+  - auto
+dependencies:
+  - python=2.7
+  - scikit-learn=0.17
+  - Django
+  - h5py
+  - pip:
+    - Keras>=1.2.2,<1.2.99

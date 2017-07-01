@@ -1,0 +1,10 @@
+channels:
+  - defaults
+  - conda
+  - conda-forge
+dependencies:
+  - jupyter
+  - pudb
+  - pylint
+  - backports.functools_lru_cache # for pylint
+  - isort # for pylint

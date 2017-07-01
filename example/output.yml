@@ -1,0 +1,22 @@
+channels:
+- defaults
+- conda
+- conda-forge
+- auto
+dependencies:
+- Django
+- backports.functools_lru_cache
+- celery==3.1.25
+- django-celery
+- fabric
+- h5py
+- isort
+- jupyter
+- pudb
+- pylint
+- python=2.7
+- scikit-learn=0.17
+- pip:
+  - Keras>=1.2.2,<1.2.99
+  - genty
+name: example

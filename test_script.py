@@ -1,6 +1,9 @@
 # encoding: utf-8
 """Tests for conda-merge"""
 
+import io
+import contextlib
+import glob
 import pytest
 
 import conda_merge as cm
@@ -37,3 +40,13 @@ def test_dependencies():
     assert cm.merge_dependencies([deps1, deps2, deps3]) == out
     # handling simple duplicates
     assert cm.merge_dependencies([['a'], ['a']]) == ['a']
+
+
+def test_main():
+    """Test the main entry point for the script with real examples"""
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        argv = list(glob.glob('example/*environment.yml'))
+        cm.main(cm.parse_args(argv))
+    out.seek(0)
+    assert out.read() == open('example/output.yml').read()
