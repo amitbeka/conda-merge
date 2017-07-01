@@ -2,8 +2,12 @@
 # encoding: utf-8
 """Tool to merge environment files of the conda package manager"""
 
+import argparse
 from collections import OrderedDict, deque
 from copy import deepcopy
+import sys
+
+import yaml
 
 
 class MergeError(Exception):
@@ -11,15 +15,31 @@ class MergeError(Exception):
 
 
 def main(args):
-    pass
+    env_definitions = [read_file(f) for f in args.files]
+    unified_definition = {}
+    name = merge_names(env.get('name') for env in env_definitions)
+    if name:
+        unified_definition['name'] = name
+    channels = merge_channels(env.get('channels') for env in env_definitions)
+    if channels:
+        unified_definition['channels'] = channels
+    deps = merge_dependencies(env.get('dependencies') for env in env_definitions)
+    if deps:
+        unified_definition['dependencies'] = deps
+    yaml.dump(unified_definition, sys.stdout,
+              indent=2, default_flow_style=False)
+
 
 
 def parse_args(argv=None):
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument('files', nargs='+')
+    return parser.parse_args(argv)
 
 
 def read_file(path):
-    pass
+    with open(path) as f:
+        return yaml.load(f)
 
 
 def merge_names(names):
@@ -33,6 +53,8 @@ def merge_channels(channels_list):
     dag = DAG()
     try:
         for channels in channels_list:
+            if channels is None: # not found in this environment definition
+                continue
             for i, channel in enumerate(channels):
                 dag.add_node(channel)
                 if i > 0:
@@ -46,10 +68,12 @@ def merge_dependencies(deps_list):
     only_pips = []
     unified_deps = []
     for deps in deps_list:
+        if deps is None: # not found in this environment definition
+            continue
         for dep in deps:
             if isinstance(dep, dict) and dep['pip']:
                 only_pips.append(dep['pip'])
-            else:
+            elif dep not in unified_deps:
                 unified_deps.append(dep)
     unified_deps = sorted(unified_deps)
     if only_pips:
@@ -71,6 +95,9 @@ class DAG(object):
 
     def __init__(self):
         self.graph = OrderedDict()
+
+    def __len__(self):
+        return len(self.graph)
 
     def add_node(self, node_name):
         if node_name not in self.graph:

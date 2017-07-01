@@ -22,8 +22,10 @@ def test_channels():
     assert cm.merge_channels([['a', 'b'], ['c', 'd'], full]) == full
     # complex -- other options might be possible, so failing for no reason is possible
     in_channels = [['a', 'b', 'c'], ['x', 'c', 'd'], ['b', 'f', 'd']]
-    possible_out = [list(x) for x in ('abfxcd', 'abxfcd', 'axbcfd')]
+    possible_out = [list(x) for x in ('abfxcd', 'abxfcd', 'axbcfd', 'axbfcd')]
     assert cm.merge_channels(in_channels) in possible_out
+    # empty
+    assert cm.merge_channels([None]) == []
 
 
 def test_dependencies():
@@ -33,3 +35,5 @@ def test_dependencies():
     out = ['a', 'a>=4', 'b', 'b=2.0.*', 'c', 'd', 'e', 'f<3',
            {'pip': ['w', 'x', 'x==1.0.0', 'y', 'z']}]
     assert cm.merge_dependencies([deps1, deps2, deps3]) == out
+    # handling simple duplicates
+    assert cm.merge_dependencies([['a'], ['a']]) == ['a']
