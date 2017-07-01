@@ -1,6 +1,20 @@
-#! /usr/bin/python3
+#!/usr/bin/python3
 # encoding: utf-8
-"""Tool to merge environment files of the conda package manager"""
+"""Tool to merge environment files of the conda package manager.
+
+Given a list of environment files, print a unified environment file.
+
+Merge strategy for each part of the definition:
+  name: keep the last name, if any is given (according to the order of the files).
+  channels: merge the channel priorities of all files and keep each file's priorities
+    in the same order. If there is a collision between files, report an error.
+  dependencies: merge the dependencies and remove duplicates, sorts alphabetically.
+    conda itself can handle cases like [numpy, numpy=1.7] gracefully so no need
+    to do that. You may beutify the dependencies by hand if you wish.
+    The script also doesn't detect collision, relying on conda to point that out.
+
+"""
+
 
 import argparse
 from collections import OrderedDict, deque
@@ -26,13 +40,16 @@ def main(args):
     deps = merge_dependencies(env.get('dependencies') for env in env_definitions)
     if deps:
         unified_definition['dependencies'] = deps
+    # dump the unified environment definition to stdout
     yaml.dump(unified_definition, sys.stdout,
               indent=2, default_flow_style=False)
 
 
-
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser()
+    description = sys.modules[__name__].__doc__
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('files', nargs='+')
     return parser.parse_args(argv)
 
@@ -89,7 +106,7 @@ class DAG(object):
     """Directed acyclic graph for merging channel priorities.
 
     This is a stripped down version adopted from:
-    https://github.com/thieman/py-dag
+    https://github.com/thieman/py-dag (MIT license)
 
     """
 
