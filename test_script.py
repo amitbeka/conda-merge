@@ -24,3 +24,12 @@ def test_channels():
     in_channels = [['a', 'b', 'c'], ['x', 'c', 'd'], ['b', 'f', 'd']]
     possible_out = [list(x) for x in ('abfxcd', 'abxfcd', 'axbcfd')]
     assert cm.merge_channels(in_channels) in possible_out
+
+
+def test_dependencies():
+    deps1 = ['a', 'b', 'c', 'd', {'pip': ['x', 'y', 'z']}]
+    deps2 = ['b=2.0.*', 'e', {'pip': ['x==1.0.0', 'w']}]
+    deps3 = ['f<3', 'a>=4']
+    out = ['a', 'a>=4', 'b', 'b=2.0.*', 'c', 'd', 'e', 'f<3',
+           {'pip': ['w', 'x', 'x==1.0.0', 'y', 'z']}]
+    assert cm.merge_dependencies([deps1, deps2, deps3]) == out

@@ -43,15 +43,26 @@ def merge_channels(channels_list):
 
 
 def merge_dependencies(deps_list):
-    pass
+    only_pips = []
+    unified_deps = []
+    for deps in deps_list:
+        for dep in deps:
+            if isinstance(dep, dict) and dep['pip']:
+                only_pips.append(dep['pip'])
+            else:
+                unified_deps.append(dep)
+    unified_deps = sorted(unified_deps)
+    if only_pips:
+        unified_deps.append(merge_pips(only_pips))
+    return unified_deps
 
 
 def merge_pips(pip_list):
-    pass
+    return {'pip': sorted(req for reqs in pip_list for req in reqs)}
 
 
 class DAG(object):
-    """Directed acyclic graph fpr merging channel priorities.
+    """Directed acyclic graph for merging channel priorities.
 
     This is a stripped down version adopted from:
     https://github.com/thieman/py-dag
@@ -74,6 +85,7 @@ class DAG(object):
             self.graph[from_node].add(to_node)
         else:
             raise ValueError("{} -> {}".format(from_node, to_node))
+
     @property
     def independent_nodes(self):
         """Return a list of all nodes in the graph with no dependencies."""
@@ -124,6 +136,7 @@ class DAG(object):
             return sorted_nodes
         else:
             raise ValueError('graph is not acyclic')
+
 
 if __name__ == '__main__':
     main(parse_args())
