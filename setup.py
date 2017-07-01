@@ -28,7 +28,7 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3 :: Only'
+        'Programming Language :: Python :: 3 :: Only',
         'Topic :: Software Development :: Build Tools',
         'Topic :: System :: Installation/Setup',
     ],
