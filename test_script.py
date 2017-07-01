@@ -49,6 +49,6 @@ def test_main():
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
         argv = list(glob.glob('example/*environment.yml'))
-        cm.main(cm.parse_args(argv))
+        cm.merge_envs(cm.parse_args(argv))
     out.seek(0)
     assert out.read() == open('example/output.yml').read()

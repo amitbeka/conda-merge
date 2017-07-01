@@ -30,7 +30,7 @@ class MergeError(Exception):
     pass
 
 
-def main(args):
+def merge_envs(args):
     """Main script entry point.
 
     `args` is a Namescpace object, `args.files` should be a list of file paths
@@ -214,8 +214,13 @@ class DAG(object):
             raise ValueError('graph is not acyclic')
 
 
-if __name__ == '__main__':
+def main():
+    """Main entry point for console_scripts of setup.py"""
     try:
-        main(parse_args())
+        merge_envs(parse_args())
     except MergeError:
-        sys.exit(1)
+        return 1
+
+
+if __name__ == '__main__':
+    main()
