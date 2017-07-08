@@ -11,8 +11,8 @@ Merge strategy for each part of the definition:
     in the same order. If there is a collision between files, report an error.
   dependencies: merge the dependencies and remove duplicates, sorts alphabetically.
     conda itself can handle cases like [numpy, numpy=1.7] gracefully so no need
-    to do that. You may beutify the dependencies by hand if you wish.
-    The script also doesn't detect collision, relying on conda to point that out.
+    to do that. You may beautify the dependencies by hand if you wish.
+    The script also doesn't detect collisions, relying on conda to point that out.
 
 """
 
@@ -112,7 +112,7 @@ def merge_dependencies(deps_list):
 
     Two overlapping dependencies (e.g. package-a and package-a=1.0.0) are not
     unified, and both are left in the list (except cases of exactly the same
-    dependency). Conda itself handles that very well so no need to this ourselves,
+    dependency). Conda itself handles that very well so no need to do this ourselves,
     unless you want to prettify the output by hand.
 
     """
