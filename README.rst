@@ -7,13 +7,17 @@ environment file you might need (e.g. unit-tests, debugging, jupyter notebooks)
 and create a consistent environment without breaking dependencies from the
 previous environment files.
 
-Installation:
-::
-  pip install conda-merge
+**Installation**:
 
-Usage:
 ::
-  conda-merge FILE1 FILE2 ... FILE-N > OUTPUT-FILE
+
+    pip install conda-merge
+
+**Usage**:
+
+::
+
+    conda-merge FILE1 FILE2 ... FILE-N > OUTPUT-FILE
 
 A common problem with multiple environment files is that of pinned dependencies:
 let's say ``environment.yml`` contains the dependency ``numpy=1.7``, and your
