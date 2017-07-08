@@ -3,7 +3,7 @@
 """Tool to merge environment files of the conda package manager.
 
 Given a list of environment files, print a unified environment file.
-Usage: conda-merge file1 file2 ...
+Usage: conda-merge file1 file2 ... [> unified-environment]
 
 Merge strategy for each part of the definition:
   name: keep the last name, if any is given (according to the order of the files).
