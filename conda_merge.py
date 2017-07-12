@@ -50,7 +50,8 @@ def merge_envs(args):
     try:
         channels = merge_channels(env.get('channels') for env in env_definitions)
     except MergeError as exc:
-        sys.stderr("Falied to merge channel priorities.\n{}\n".format(exc.msg))
+        print("Falied to merge channel priorities.\n{}\n".format(exc.args[0]),
+              file=sys.stderr)
         raise
     if channels:
         unified_definition['channels'] = channels
@@ -102,9 +103,9 @@ def merge_channels(channels_list):
                 dag.add_node(channel)
                 if i > 0:
                     dag.add_edge(channels[i-1], channel)
+        return dag.topological_sort()
     except ValueError as exc:
-        raise MergeError("Can't satisfy priority {}".format(exc.msg))
-    return dag.topological_sort()
+        raise MergeError("Can't satisfy channels priority: {}".format(exc.args[0]))
 
 
 def merge_dependencies(deps_list):
