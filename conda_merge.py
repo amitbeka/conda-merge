@@ -75,7 +75,7 @@ def parse_args(argv=None):
 
 def read_file(path):
     with open(path) as f:
-        return yaml.load(f)
+        return yaml.safe_load(f)
 
 
 def merge_names(names):
