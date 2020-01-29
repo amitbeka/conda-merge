@@ -154,17 +154,18 @@ class DAG(object):
 
     def add_node(self, node_name):
         if node_name not in self.graph:
-            self.graph[node_name] = set()
+            self.graph[node_name] = []
 
     def add_edge(self, from_node, to_node):
         if from_node not in self.graph or to_node not in self.graph:
             raise KeyError('one or more nodes do not exist in graph')
-        test_graph = deepcopy(self.graph)
-        test_graph[from_node].add(to_node)
-        if self.validate():
-            self.graph[from_node].add(to_node)
-        else:
-            raise ValueError("{} -> {}".format(from_node, to_node))
+        if to_node not in self.graph[from_node]:
+            test_graph = deepcopy(self.graph)
+            test_graph[from_node].append(to_node)
+            if self.validate():
+                self.graph[from_node].append(to_node)
+            else:
+                raise ValueError("{} -> {}".format(from_node, to_node))
 
     @property
     def independent_nodes(self):
