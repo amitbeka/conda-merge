@@ -29,5 +29,5 @@ and will be upgraded to the latest version.
 One option to solve it is by using the pinned dependencies file in the environment
 directory, but this means storing your dependencies in another file which interacts
 with ``environment.yml``, and makes the dependencies less clear to other users.
-This script enables you to merge the two environemnt files and then run only
+This script enables you to merge the two environment files and then run only
 one ``conda env`` command to apply the change.
