@@ -21,11 +21,12 @@ import argparse
 from collections import OrderedDict, deque
 from copy import deepcopy
 import sys
+import re
 
 import yaml
 
 
-__version__ = '0.1.4'
+__version__ = '0.2.0'
 
 
 class MergeError(Exception):
@@ -55,7 +56,9 @@ def merge_envs(args):
         raise
     if channels:
         unified_definition['channels'] = channels
-    deps = merge_dependencies(env.get('dependencies') for env in env_definitions)
+    deps = merge_dependencies(
+        [env.get('dependencies') for env in env_definitions], remove_builds=args.remove_builds
+    )
     if deps:
         unified_definition['dependencies'] = deps
     # dump the unified environment definition to stdout
@@ -70,6 +73,11 @@ def parse_args(argv=None):
         description=description,
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('files', nargs='+')
+    parser.add_argument(
+        "--remove-builds",
+        action="store_true",
+        help="Remove build specifiers from dependencies (ignores then for merging purposes)",
+    )
     return parser.parse_args(argv)
 
 
@@ -108,7 +116,7 @@ def merge_channels(channels_list):
         raise MergeError("Can't satisfy channels priority: {}".format(exc.args[0]))
 
 
-def merge_dependencies(deps_list):
+def merge_dependencies(deps_list, remove_builds=False):
     """Merge all dependencies to one list and return it.
 
     Two overlapping dependencies (e.g. package-a and package-a=1.0.0) are not
@@ -125,8 +133,11 @@ def merge_dependencies(deps_list):
         for dep in deps:
             if isinstance(dep, dict) and dep['pip']:
                 only_pips.append(dep['pip'])
-            elif dep not in unified_deps:
-                unified_deps.append(dep)
+            else:
+                if remove_builds:
+                    dep = _remove_build(dep)
+                if dep not in unified_deps:
+                    unified_deps.append(dep)
     unified_deps = sorted(unified_deps)
     if only_pips:
         unified_deps.append(merge_pips(only_pips))
@@ -136,6 +147,12 @@ def merge_dependencies(deps_list):
 def merge_pips(pip_list):
     """Merge pip requirements lists the same way as `merge_dependencies` work"""
     return {'pip': sorted({req for reqs in pip_list for req in reqs})}
+
+
+def _remove_build(dep):
+    """Remove build version if exists, return dep"""
+    m = re.match(r"([^=]+=[^=]+)=([^=]+)$", dep, re.IGNORECASE)
+    return m.group(1) if m else dep
 
 
 class DAG(object):

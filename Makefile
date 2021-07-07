@@ -7,5 +7,7 @@ build:
 	python setup.py sdist
 upload:
 	twine upload -u amitbeka dist/*
+upload-test:
+	twine upload -u amitbeka -r testpypi dist/*
 
-.PHONY: test lint build upload
+.PHONY: test lint build upload upload-test

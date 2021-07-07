@@ -4,7 +4,6 @@
 import io
 import contextlib
 import glob
-import pytest
 
 import conda_merge as cm
 
@@ -42,6 +41,18 @@ def test_dependencies():
     assert cm.merge_dependencies([deps1, deps2, deps3]) == out
     # handling simple duplicates
     assert cm.merge_dependencies([['a'], ['a']]) == ['a']
+
+
+def test_build_versions():
+    """Test removing build versions works"""
+    # Using one non-fixed package to see that we're not hurting it
+    deps1 = ['certifi=2020.6.20=py38_0', 'ca-certificates=2020.10.14=0', 'xz']
+    # Using one fixed-version w/o build package to see that we're keeping the version correctly
+    deps2 = ['ca-certificates=2020.10.14=h06a4308_1', 'certifi=2021.5.30=py38h06a4308_0',
+             'xz=5.2.5']
+    # The conflicting certifi packages should be caught by conda itself, we let them through
+    out = ['ca-certificates=2020.10.14', 'certifi=2020.6.20', 'certifi=2021.5.30', 'xz', 'xz=5.2.5']
+    assert cm.merge_dependencies([deps1, deps2], remove_builds=True) == out
 
 
 def test_main():
