@@ -45,7 +45,7 @@ def merge_envs(args):
     """
     env_definitions = [read_file(f) for f in args.files]
     unified_definition = {}
-    name = merge_names(env.get('name') for env in env_definitions)
+    name = merge_names([env.get('name') for env in env_definitions], args)
     if name:
         unified_definition['name'] = name
     try:
@@ -78,6 +78,9 @@ def parse_args(argv=None):
         action="store_true",
         help="Remove build specifiers from dependencies (ignores then for merging purposes)",
     )
+    parser.add_argument(
+        "-n", "--name", action="store", help="Set explicit name for the new environment",
+    )
     return parser.parse_args(argv)
 
 
@@ -86,8 +89,10 @@ def read_file(path):
         return yaml.safe_load(f)
 
 
-def merge_names(names):
+def merge_names(names, argv=None):
     """Merge names of environments by leaving the last non-blank one"""
+    if argv and argv.name:
+        return argv.name
     actual_names = [name for name in names if name]
     if actual_names:
         return actual_names[-1]

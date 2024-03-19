@@ -16,6 +16,14 @@ def test_merge_names():
     assert cm.merge_names([None, None]) is None
 
 
+def test_explicit_name():
+    """Test explicit set name is used instead of other names"""
+    assert cm.parse_args(["somefile1", "somefile2"]).name is None
+    argv = cm.parse_args(["-n", "testme", "some_file"])
+    assert argv.name == "testme"
+    assert cm.merge_names(["name1", "name2"], argv) == "testme"
+
+
 def test_channels():
     """Test merge_channels and see that the priorities are merged correctly"""
     # simple
