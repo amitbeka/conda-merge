@@ -20,3 +20,6 @@ dependencies:
   - Keras>=1.2.2,<1.2.99
   - genty
 name: example
+variables:
+  DEBUG: 1
+  KEY_FILE: key.json

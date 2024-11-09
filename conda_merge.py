@@ -26,7 +26,7 @@ import re
 import yaml
 
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 class MergeError(Exception):
@@ -61,6 +61,9 @@ def merge_envs(args):
     )
     if deps:
         unified_definition['dependencies'] = deps
+    variables = merge_variables(env.get('variables') for env in env_definitions)
+    if variables:
+        unified_definition['variables'] = variables
     # dump the unified environment definition to stdout
     yaml.dump(unified_definition, sys.stdout,
               indent=2, default_flow_style=False)
@@ -153,6 +156,15 @@ def _remove_build(dep):
     """Remove build version if exists, return dep"""
     m = re.match(r"([^=]+=[^=]+)=([^=]+)$", dep, re.IGNORECASE)
     return m.group(1) if m else dep
+
+
+def merge_variables(vars_list):
+    """Merge env vars specified in environment files, taking the latest if they are overlapping"""
+    unified = {}
+    for vars in vars_list:
+        if vars:
+            unified.update(vars)
+    return unified
 
 
 class DAG(object):

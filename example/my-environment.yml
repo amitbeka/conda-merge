@@ -8,3 +8,5 @@ dependencies:
   - pylint
   - backports.functools_lru_cache # for pylint
   - isort # for pylint
+variables:
+  DEBUG: 1

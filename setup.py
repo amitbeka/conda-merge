@@ -12,7 +12,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='conda-merge',
-    version='0.2.0',
+    version='0.3.0',
 
     description='Tool for merging conda environment files',
     long_description=long_description,
