@@ -45,7 +45,7 @@ def merge_envs(args):
     """
     env_definitions = [read_file(f) for f in args.files]
     unified_definition = {}
-    name = merge_names(env.get('name') for env in env_definitions)
+    name = args.name or merge_names(env.get('name') for env in env_definitions)
     if name:
         unified_definition['name'] = name
     try:
@@ -81,6 +81,7 @@ def parse_args(argv=None):
         action="store_true",
         help="Remove build specifiers from dependencies (ignores then for merging purposes)",
     )
+    parser.add_argument("-n", "--name", help="Specify a name for the merged environment and don't use the names from the source files")
     return parser.parse_args(argv)
 
 
