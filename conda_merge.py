@@ -51,7 +51,7 @@ def merge_envs(args):
     try:
         channels = merge_channels(env.get('channels') for env in env_definitions)
     except MergeError as exc:
-        print("Falied to merge channel priorities.\n{}\n".format(exc.args[0]),
+        print("Failed to merge channel priorities.\n{}\n".format(exc.args[0]),
               file=sys.stderr)
         raise
     if channels:
